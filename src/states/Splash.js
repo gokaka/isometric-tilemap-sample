@@ -14,17 +14,23 @@ export default class extends Phaser.State {
     //
     // load your assets
     //
-    this.load.image('mushroom', 'assets/images/mushroom2.png')
+    this.load.image('mushroom-green', 'assets/images/mushroom-green.png');
+    this.load.image('mushroom-red', 'assets/images/mushroom-red.png');
 
     this.load.image('star', './assets/images/star.png');
 
-    this.game.load.image('tile', './assets/images/tile.png');
-    this.game.load.image('tile-attack', './assets/images/tile-attack.png');
+    this.game.load.image('tile-grey', './assets/images/tile-grey.png');
+    this.game.load.image('tile-white', './assets/images/tile-white.png');
+    this.game.load.image('tile-red', './assets/images/tile-red.png');
     // Add and enable the plug-in.
     this.game.plugins.add(new Phaser.Plugin.Isometric(this.game));
     // This is used to set a game canvas-based offset for the 0, 0, 0 isometric coordinate - by default
     // this point would be at screen coordinates 0, 0 (top left) which is usually undesirable.
-    this.game.iso.anchor.setTo(0.5, 0.2);
+    this.game.iso.anchor.setTo(0.4, 0.2);
+
+
+    // load buttons
+    game.load.spritesheet('button', './assets/buttons/button.jpg', 100, 50);
   }
 
   create () {
