@@ -14,6 +14,9 @@ export default class extends Phaser.State {
     //
     // load your assets
     //
+    this.load.spritesheet('dino_vita', 'assets/images/dino_vita.png', 72, 72, 14);
+    this.load.spritesheet('dino_mort', 'assets/images/dino_mort.png', 72, 72, 14);
+
     this.load.image('mushroom-green', 'assets/images/mushroom-green.png');
     this.load.image('mushroom-red', 'assets/images/mushroom-red.png');
 

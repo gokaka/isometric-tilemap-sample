@@ -1,6 +1,8 @@
 /* globals __DEV__ */
 import Phaser from 'phaser'
-import Mushroom from '../sprites/Mushroom'
+import Mushroom from '../sprites/Mushroom';
+import Dino from '../sprites/Dino';
+import DinoState from '../sprites/DinoState';
 import LabelButton from '../sprites/LabelButton';
 import BattleScene from '../scene/BattleScene';
 import BattleState from '../scene/BattleState';
@@ -8,6 +10,7 @@ import '../vendor/phaser-plugin-isometric';
 
 var isoGroup, cursorPos, cursor;
 var player, playerMove, enemy;
+var dino;
 var map = {};
 var battleScene;
 
@@ -46,6 +49,13 @@ export default class extends Phaser.State {
     // banner.smoothed = false
     // banner.anchor.setTo(0.5)
 
+    // load spriteSheet dino
+    // dino = game.add.sprite(109, 100, 'dino');
+    // dino.animations.add('idle', [0,1,2,3], 7, true);
+    // dino.animations.add('move', [4,5,6,7,8,9], 7, true);
+    // dino.animations.play('idle');
+    // console.log(dino);
+
     this.loadMap();
     
     // Create a group for our tiles.
@@ -57,32 +67,33 @@ export default class extends Phaser.State {
     
     console.log(isoGroup);
 
-    player = new Mushroom({
+    player = new Dino({
       game: this.game,
       mapX: battleScene.playerSpawn.x,
       mapY: battleScene.playerSpawn.y,
-      asset: 'mushroom-green',
+      asset: 'dino_vita',
       isoGroup: isoGroup
     });
-
     this.game.add.existing(player);
+    player.idleAnimation();
+    console.log(player);
 
-    playerMove = new Mushroom({
+    playerMove = new Dino({
       game: this.game,
       mapX: battleScene.playerSpawn.x,
       mapY: battleScene.playerSpawn.y,
-      asset: 'mushroom-green',
+      asset: 'dino_vita',
       isoGroup: isoGroup
     });
     playerMove.visible = false;
     playerMove.alpha = 0.5;
     this.game.add.existing(playerMove);
 
-    enemy = new Mushroom({
+    enemy = new Dino({
       game: this.game,
       mapX: battleScene.enemySpawn.x,
       mapY: battleScene.enemySpawn.y,
-      asset: 'mushroom-red',
+      asset: 'dino_mort',
       isoGroup: isoGroup
     });
 
@@ -104,12 +115,20 @@ export default class extends Phaser.State {
     var attackText = game.add.text(0, 0, "Attack", {font: "16px", fill: "#000"});
     attackButton.addChild(attackText);
 
+    var enemyButton = game.add.button(this.world.width-100, this.world.height-60, 'button', this.enemyTurn, this, 2, 1, 0);
+    var enemyText = game.add.text(0, 0, "Enemy Turn", {font: "16px", fill: "#000"});
+    enemyButton.addChild(enemyText);
 
     this.moveKey = game.input.keyboard.addKey(Phaser.Keyboard.M);
     this.attackKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
 
   }
   
+  enemyTurn(){
+    battleScene.state = BattleState.ENEMY_TURN;
+    enemy.attack(player);
+  }
+
   switchIdleState() {
     battleScene.state = BattleState.IDLE;
     console.log(battleScene.state);
@@ -130,6 +149,13 @@ export default class extends Phaser.State {
   }
 
   update () {
+    if(battleScene.BattleState == BattleState.MOVE){
+      
+    }
+    else if(player.state == DinoState.IDLE){
+      
+    }
+    
 
     if(this.moveKey.isDown){
       this.switchMoveState();
@@ -171,9 +197,11 @@ export default class extends Phaser.State {
               if(game.input.activePointer.isDown){
                 console.log(tile);
                 playerMove.visible = false;
+                player.moveAnimation();
                 battleScene.state = BattleState.IDLE;
                 player.mapX = tile.mapX;
                 player.mapY = tile.mapY;
+                console.log(`player move ${player.mapX}, ${player.mapY}`);
 
                 function bringTop(){
                   if(player.mapX > enemy.mapX || player.mapY > enemy.mapY){
@@ -184,7 +212,12 @@ export default class extends Phaser.State {
                   }
                 }
                 bringTop();
-                game.add.tween(player).to({x: tile.x, y: tile.y, z: tile.z}, 500, Phaser.Easing.Quadratic.InOut, true);
+                var moveTo = game.add.tween(player).to({x: tile.x, y: tile.y, z: tile.z}, 800, Phaser.Easing.Quadratic.InOut, true);
+                moveTo.onComplete.add(function(){ 
+                  console.log('move to end');
+                  // player.animations.stop();
+                  player.idleAnimation();
+                } );
               }
             }
           }
@@ -206,13 +239,29 @@ export default class extends Phaser.State {
                 console.log(tile);
                 playerMove.visible = false;
                 battleScene.state = BattleState.IDLE;
+                player.moveAnimation();
+                var moveTo = game.add.tween(player).to({x: tile.x-25, y: tile.y+10}, 500, Phaser.Easing.Quadratic.InOut);
+                var attackStart = game.add.tween(player).to({y: "-10", tint: 0xff0000}, 300, Phaser.Easing.Bounce.In);
+                var attackEnd = game.add.tween(player).to({y: "+10", tint: 0xffffff}, 300, Phaser.Easing.Bounce.Out);
                 
-                var moveTo = game.add.tween(player).to({x: tile.x, y: tile.y}, 500, Phaser.Easing.Quadratic.InOut);
-                var attack = game.add.tween(player).to({y: "-10", tint: 0xff0000}, 500, Phaser.Easing.Bounce.Out);
-                
-                var moveBack = game.add.tween(player).to({x: player.x, y: player.y, tint: 0xffffff}, 500, Phaser.Easing.Quadratic.InOut);
-                moveTo.onComplete.add(function(){ attack.start();} );
-                attack.onComplete.add(function() { moveBack.start()} );
+                var moveBack = game.add.tween(player).to({x: player.x, y: player.y}, 500, Phaser.Easing.Quadratic.InOut);
+                moveTo.onComplete.add(function(){ 
+                  attackStart.start(); 
+                  player.attackAnimation();
+                } );
+                attackStart.onComplete.add(function() { 
+                  attackEnd.start();
+                  if(enemy.mapX == tile.mapX && enemy.mapY == tile.mapY){
+                    enemy.hurtAnimation();
+                  }
+                } );
+                attackEnd.onComplete.add(function(){
+                  moveBack.start();
+                  player.moveAnimation();
+                });
+                moveBack.onComplete.add(function() {
+                  player.idleAnimation();
+                });
                 moveTo.start();
               }
             }
@@ -260,8 +309,8 @@ export default class extends Phaser.State {
     if (__DEV__) {
       // this.game.debug.spriteInfo(this.mushroom, 32, 32)
       this.game.debug.text(`Battle State: ${battleScene.state}`, 0, 20);
-      this.game.debug.text(`Player: ${battleScene.playerPos.x}, ${battleScene.playerPos.y}`, 0, 40);
-      this.game.debug.text(`Enemy: ${battleScene.enemyPos.x}, ${battleScene.enemyPos.y}`, 0, 60);
+      this.game.debug.text(`Player: ${player.mapX}, ${player.mapY}`, 0, 40);
+      this.game.debug.text(`Enemy: ${enemy.mapX}, ${enemy.mapY}`, 0, 60);
     }
 
     

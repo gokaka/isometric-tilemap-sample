@@ -2,13 +2,11 @@ import BattleState from './BattleState';
 
 export default {
   playerSpawn: {x: 2, y: 8},
-  enemySpawn: {x: 7, y: 4},
+  enemySpawn: {x: 6, y: 4},
   tileSize: 38,
   width: 11,
   height: 9,
 
-  playerPos:  {x: 2, y: 8},
-  enemyPos: {x: 7, y: 4},
   state: BattleState.IDLE,
 
   getPos(mapX, mapY, isoGroup){
@@ -32,11 +30,16 @@ export default {
     var moveY = mapY - playerY + 3;
     var eX = enemyX - playerX + 3;
     var eY = enemyY - playerY + 3;
-    for(var j=0; j<=eY; j++){
-      for(var i=eX; i>=0 && i<moveMatrix[j].length;i++){
-          moveMatrix[j][i] = 0;
-      }
+    try{
+      moveMatrix[eY][eX] = 0;
     }
+    catch(ex){
+    }   
+    // for(var j=0; j<=eY; j++){
+    //   for(var i=eX; i>=0 && i<moveMatrix[j].length;i++){
+    //       moveMatrix[j][i] = 0;
+    //   }
+    // }
 
     if(moveX < 0 || moveX >= moveMatrix[0].length) return false;
     if(moveY < 0 || moveY >= moveMatrix.length) return false;
@@ -58,5 +61,15 @@ export default {
     if(moveY < 0 || moveY >= matrix.length) return false;
 
     return matrix[moveY][moveX];
+  },
+
+  getPosInMap(mapX, mapY){
+    if(mapX < 0) mapX = 0;
+    if(mapX >= this.width) mapX = this.width-1;
+
+    if(mapY < 0) mapY = 0;
+    if(mapY >= this.height) mapY = this.height-1;
+
+    return {mapX: mapX, mapY: mapY};
   }
 }
