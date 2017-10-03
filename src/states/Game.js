@@ -286,8 +286,9 @@ export default class extends Phaser.State {
     for(var y=0; y < map.height; y++){
       for(var x=0; x < map.width; x++){
         var tileData = map.data[map.width*y + x];
-        var tileName = (tileData == 1) ? 'tile-white' : 'tile-grey';
-        tile = this.game.add.isoSprite(x * map.tileSize, y * map.tileSize, 0, tileName, 0, isoGroup);
+        // var tileName = (tileData == 1) ? 'tile-white' : 'tile-grey';
+        var tileName = 'tile-grass';
+        tile = this.game.add.isoSprite(x * 35, y * 35, 0, tileName, 0, isoGroup);
         tile.anchor.set(0.5, 0);
         tile.mapX = x + 1;
         tile.mapY = y + 1;
